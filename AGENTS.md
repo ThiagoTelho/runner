@@ -37,6 +37,13 @@ Instruções para agentes (e colaboradores) que trabalham neste repositório. A 
 - Parâmetros de assinatura alinhados às páginas FHIR citadas em `especificacao.md` §10.
 - Diagramas **C4** (contexto e contêineres): paths indicados na spec (`diagramas/`).
 
+## Stack tecnológica
+
+- **`assinador.jar`**: Java 21, Gradle (shadow JAR), picocli (CLI), Gson (JSON), `com.sun.net.httpserver` (HTTP), JUnit 5 (testes).
+- **CLIs `assinatura` e `simulador`**: Go (cobra para CLI), cross-compile via `GOOS`/`GOARCH`.
+- Build do Assinador: `cd assinador && ./gradlew build` (requer `JAVA_HOME` apontando para JDK 21).
+- Build dos CLIs: `cd assinatura && go build -o assinatura .` / `cd simulador && go build -o simulador .`
+
 ## Documentação interna deste repositório
 
 - `especificacao.md`: requisitos, user stories, entregáveis.

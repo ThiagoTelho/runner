@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Gradle
+assinador/build/
+assinador/.gradle/
+*.class
+
+# Go
+assinatura/assinatura
+simulador/simulador
+
+# IDE
+.idea/
+*.iml
+.vscode/
