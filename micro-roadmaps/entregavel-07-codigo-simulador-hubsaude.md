@@ -6,6 +6,8 @@
 
 > **Nota de alinhamento:** Na mesma especificação, a US-03 afirma que o **Simulador (`simulador.jar`) não faz parte do escopo de desenvolvimento do Sistema Runner** e deve ser obtido via GitHub Releases. O Entregável 7 pode ser exigência acadêmica separada (outro repositório ou módulo). **Confirmar com o orientador** se este entregável é o JAR fornecido pela disciplina (apenas empacotamento) ou um projeto Java independente que vocês implementam.
 
+> **Estado no repositório (2026-04):** não há código-fonte do Simulador HubSaúde neste mono-repo; o CLI `simulador` existe apenas como esqueleto (comandos e pacotes com TODO), sem download/cache/integração implementados.
+
 ---
 
 ## 0. Esclarecimento de escopo (obrigatório antes de codificar)

@@ -4,11 +4,13 @@
 
 **Critério de conclusão:** contexto e escopo definidos, diagramas C4, requisitos documentados e **alinhados à implementação** ao longo do projeto.
 
+> **Estado no repositório (2026-04):** `especificacao.md` consolidada (escopo, user stories, fluxos, Cosign). Pastas/arquivos `diagramas/` referenciados na spec **ainda não existem** no repositório (links quebrados). Alinhamento implementação ↔ requisitos ainda em evolução.
+
 ---
 
 ## 1. Contexto e escopo
 
-- [ ] Manter visão geral, objetivos e **objetivos específicos** refletindo o produto final.
+- [x] Manter visão geral, objetivos e **objetivos específicos** refletindo o produto final.
 - [ ] Revisar §4.1 / §4.2 (dentro/fora do escopo) se houver mudanças aprovadas pelo orientador.
 - [ ] Registrar decisões de escopo com data e motivo (changelog curto no doc ou seção “Histórico”).
 
@@ -37,12 +39,12 @@
 
 ## 4. Integração e fluxos
 
-- [ ] Texto ou diagramas alinhados às seções **6.1**, **6.2** e **6.3** (incluindo tratamento de erros).
-- [ ] Documentar portas padrão, formatos de mensagem e códigos relevantes.
+- [x] Texto ou diagramas alinhados às seções **6.1**, **6.2** e **6.3** (incluindo tratamento de erros).
+- [x] Documentar portas padrão, formatos de mensagem e códigos relevantes.
 
 ## 5. Segurança e distribuição (referência cruzada)
 
-- [ ] Resumo da obrigatoriedade **Cosign** / **Sigstore** (§9) e o que o usuário deve verificar.
+- [x] Resumo da obrigatoriedade **Cosign** / **Sigstore** (§9) e o que o usuário deve verificar.
 - [ ] Apontar para pipeline CI/CD que assina artefatos (Entregável 6).
 
 ## 6. Entregáveis e rastreabilidade

@@ -1,6 +1,17 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"context"
+
+	"github.com/spf13/cobra"
+)
+
+func cmdContext(c context.Context) context.Context {
+	if c != nil {
+		return c
+	}
+	return context.Background()
+}
 
 const version = "0.1.0"
 

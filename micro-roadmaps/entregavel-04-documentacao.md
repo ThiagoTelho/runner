@@ -4,6 +4,8 @@
 
 **Critério de conclusão:** manual de usuário do `assinatura`, doc técnica de integração, exemplos de uso, guia de instalação — tudo revisado e coerente com o produto entregue.
 
+> **Estado no repositório (2026-04):** `especificacao.md` e `AGENTS.md` cobrem contexto e stack; ainda não há manuais de usuário por CLI nem guia de instalação/release como documentos dedicados.
+
 ---
 
 ## 1. Manual de usuário — CLI **assinatura**

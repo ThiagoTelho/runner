@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/thiagotelho/runner/assinatura/internal/assinador"
 )
 
 func validarCmd() *cobra.Command {
@@ -15,11 +14,24 @@ func validarCmd() *cobra.Command {
 		Use:   "validar",
 		Short: "Valida uma assinatura digital simulada (JWS)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: implement local and HTTP invocation of assinador.jar
-			fmt.Println("validar: ainda não implementado")
-			fmt.Printf("  jws=%s politicaRevogacao=%s timestamp=%d politicaAssinatura=%s local=%v\n",
-				jwsPath, politicaRevogacao, timestamp, politicaAssinatura, modoLocal)
-			return nil
+			_ = modoLocal
+			ctx := cmdContext(cmd.Context())
+			java, err := assinador.FindJava()
+			if err != nil {
+				return err
+			}
+			jar, err := assinador.FindAssinadorJar()
+			if err != nil {
+				return err
+			}
+			p := assinador.ValidarParams{
+				JwsPath:            jwsPath,
+				PoliticaRevogacao:  politicaRevogacao,
+				TimestampUnixUTC:   timestamp,
+				PoliticaAssinatura: politicaAssinatura,
+				BundlePathOpcional: bundlePath,
+			}
+			return assinador.RunValidarLocal(ctx, java, jar, p, cmd.OutOrStdout(), cmd.ErrOrStderr())
 		},
 	}
 
@@ -28,7 +40,7 @@ func validarCmd() *cobra.Command {
 	cmd.Flags().Int64VarP(&timestamp, "timestamp", "t", 0, "Timestamp de referência Unix UTC (obrigatório)")
 	cmd.Flags().StringVarP(&politicaAssinatura, "politica-assinatura", "a", "", "URI da política de assinatura (obrigatório)")
 	cmd.Flags().StringVarP(&bundlePath, "bundle", "b", "", "Bundle original (opcional)")
-	cmd.Flags().BoolVar(&modoLocal, "local", false, "Forçar invocação local (cold start)")
+	cmd.Flags().BoolVar(&modoLocal, "local", false, "Forçar invocação local (cold start); no estado atual esta é a única forma de execução")
 	_ = cmd.MarkFlagRequired("jws")
 	_ = cmd.MarkFlagRequired("politica-revogacao")
 	_ = cmd.MarkFlagRequired("timestamp")

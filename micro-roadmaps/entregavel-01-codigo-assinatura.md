@@ -4,27 +4,29 @@
 
 **Critério de conclusão:** implementação completa, compatível com Windows / Linux / macOS, código documentado (comentários e estrutura onde agregar valor).
 
+> **Estado no repositório (2026-04):** comandos `criar` e `validar` invocam o Assinador via subprocesso local (`java -jar`); resolução de `java` (`JAVA_HOME` ou PATH) e do JAR (`RUNNER_ASSINADOR_JAR` ou `assinador.jar` junto ao binário). Modo servidor HTTP, detecção de instância e JDK automático (US-04) ainda pendentes.
+
 ---
 
 ## 1. Projeto e baseline multiplataforma
 
-- [ ] Inicializar módulo/pacote do CLI com convenções de build para **amd64** nas três plataformas.
-- [ ] Definir estratégia de paths (diretório de instalação, cache, `assinador.jar` embutido ou configurável).
-- [ ] Garantir que operações de filesystem e subprocessos sejam portáveis (separadores, quoting, variáveis de ambiente).
+- [x] Inicializar módulo/pacote do CLI com convenções de build para **amd64** nas três plataformas.
+- [x] Definir estratégia de paths (diretório de instalação, cache, `assinador.jar` embutido ou configurável). *(Feito: `RUNNER_ASSINADOR_JAR` ou `assinador.jar` ao lado do binário; cache/embed ainda não.)*
+- [x] Garantir que operações de filesystem e subprocessos sejam portáveis (separadores, quoting, variáveis de ambiente).
 
 ## 2. Interface de linha de comandos
 
-- [ ] Estrutura de comandos/subcomandos para **criar** e **validar** assinatura (alinhado às referências FHIR da spec).
-- [ ] Help integrado (`--help` / subcomandos) com mensagens claras e consistentes.
+- [x] Estrutura de comandos/subcomandos para **criar** e **validar** assinatura (alinhado às referências FHIR da spec).
+- [x] Help integrado (`--help` / subcomandos) com mensagens claras e consistentes.
 - [ ] Validação inicial de entrada no CLI (antes de invocar o Assinador), quando aplicável.
 
 ## 3. Integração com `assinador.jar`
 
 ### Modo local (cold start)
 
-- [ ] Resolver executável `java` (sistema ou JDK provisionado — ver Entregável 1 × US-04).
-- [ ] Montar linha de comando `java -jar assinador.jar …` com argumentos corretos.
-- [ ] Capturar stdout/stderr e códigos de saída; propagar erros de forma legível.
+- [x] Resolver executável `java` (sistema ou JDK provisionado — ver Entregável 1 × US-04).
+- [x] Montar linha de comando `java -jar assinador.jar …` com argumentos corretos.
+- [x] Capturar stdout/stderr e códigos de saída; propagar erros de forma legível.
 
 ### Modo servidor HTTP (warm start)
 
@@ -38,13 +40,13 @@
 
 ## 4. Apresentação ao usuário
 
-- [ ] Formatar e exibir resultado das operações de forma legível (criação e validação).
+- [x] Formatar e exibir resultado das operações de forma legível (criação e validação).
 - [ ] Tratamento unificado de falhas (rede, processo, timeouts, respostas inválidas).
 
 ## 5. Qualidade e documentação no código
 
-- [ ] Organização em pacotes/módulos coerentes com a arquitetura (CLI × integração × utilitários).
-- [ ] Documentação no código nos pontos não óbvios (modo local vs HTTP, resolução de JDK).
+- [x] Organização em pacotes/módulos coerentes com a arquitetura (CLI × integração × utilitários).
+- [x] Documentação no código nos pontos não óbvios (modo local vs HTTP, resolução de JDK).
 - [ ] Revisar mensagens de erro para serem acionáveis (o que corrigir e como).
 
 ## 6. Verificação antes do fechamento do entregável

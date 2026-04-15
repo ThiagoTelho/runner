@@ -4,11 +4,13 @@
 
 **Critério de conclusão:** testes unitários, de integração, cenários de erro e de aceitação baseados nos critérios definidos, executáveis em CI quando possível.
 
+> **Estado no repositório (2026-04):** testes unitários JUnit 5 no `assinador`; CLIs em Go sem arquivos `*_test.go`; `assinatura` já pode chamar o JAR em subprocesso local (teste de integração automatizado ainda não escrito). Pasta `.github` ausente — sem CI.
+
 ---
 
 ## 1. Estratégia e infraestrutura
 
-- [ ] Escolher frameworks por stack (ex.: JUnit/Mockito para Java; framework nativo do CLI).
+- [x] Escolher frameworks por stack (ex.: JUnit/Mockito para Java; framework nativo do CLI).
 - [ ] Configurar execução em CI (build + test em push/PR).
 - [ ] Política de dados de teste (fixtures, arquivos temporários, portas efêmeras).
 
@@ -16,9 +18,9 @@
 
 ### `assinador.jar`
 
-- [ ] Validador de parâmetros: casos válidos e inválidos por campo.
-- [ ] Simulação de criação: resposta esperada para conjunto representativo de entradas.
-- [ ] Simulação de validação: ramos válido/inválido conforme regra definida.
+- [x] Validador de parâmetros: casos válidos e inválidos por campo.
+- [x] Simulação de criação: resposta esperada para conjunto representativo de entradas.
+- [x] Simulação de validação: ramos válido/inválido conforme regra definida.
 - [ ] Utilitários PKCS#11 / stubs quando hardware não estiver disponível.
 
 ### CLI `assinatura`

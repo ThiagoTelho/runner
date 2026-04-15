@@ -4,6 +4,8 @@
 
 **Critério de conclusão:** binários pré-compilados para Windows / Linux / macOS (**amd64**) para `assinatura` e `simulador`, publicados em **GitHub Releases**, com **SHA256** e trinca **Cosign** (`.sig`, `.pem`) por artefato, versionamento **SemVer**.
 
+> **Estado no repositório (2026-04):** versões SemVer definidas no código (`0.1.0` nos CLIs); pipeline de release, GitHub Actions e publicação de artefatos **ainda não** constam no repositório.
+
 ---
 
 ## 1. Nomenclatura e versionamento

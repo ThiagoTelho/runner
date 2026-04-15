@@ -35,8 +35,8 @@ Documento derivado de `especificacao.md`. Lista **macro tarefas** para execuçã
 | ID | Macro tarefa | Observações |
 |----|----------------|-------------|
 | R2.1 | Definir stack do CLI (linguagem/runtime) e biblioteca de parsing de argumentos / help integrado | Boas práticas de CLI na spec |
-| R2.2 | Implementar comandos de **criação e validação** de assinatura com validação inicial no CLI | Antes de chamar o Assinador |
-| R2.3 | Implementar **invocação local**: executar `java -jar assinador.jar` (ou caminho configurado) com parâmetros corretos | Cold start (US-01) |
+| R2.2 | Implementar comandos de **criação e validação** de assinatura com validação inicial no CLI | **Parcial (2026-04):** `criar`/`validar` disparam o JAR; checagens extras de arquivos/políticas no CLI ainda mínimas. |
+| R2.3 | Implementar **invocação local**: executar `java -jar assinador.jar` (ou caminho configurado) com parâmetros corretos | **Feito (2026-04):** `RUNNER_ASSINADOR_JAR` ou `assinador.jar` ao lado do binário; `JAVA_HOME` ou `java` no PATH; stdout/stderr e código de saída. Cold start (US-01). |
 | R2.4 | Implementar **invocação via HTTP**: cliente HTTP para o Assinador em modo servidor | Warm start (US-01) |
 | R2.5 | Implementar **política de modo**: preferir servidor quando não orientado; permitir forçar local | |
 | R2.6 | Implementar **detecção de instância** do Assinador já em execução na porta padrão (e reutilização) | |
