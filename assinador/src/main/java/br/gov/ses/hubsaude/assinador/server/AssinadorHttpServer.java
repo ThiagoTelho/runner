@@ -34,8 +34,15 @@ public class AssinadorHttpServer {
     private final AssinaturaSimulator criarSimulator = new AssinaturaSimulator();
     private final ValidacaoSimulator validarSimulator = new ValidacaoSimulator();
     private HttpServer server;
+    private final java.util.concurrent.atomic.AtomicLong lastActivity =
+            new java.util.concurrent.atomic.AtomicLong(System.currentTimeMillis());
+    private java.util.concurrent.ScheduledExecutorService watchdog;
 
     public void start(int port) throws IOException {
+        start(port, 0);
+    }
+
+    public void start(int port, int inativadeMinutos) throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
 
@@ -46,9 +53,29 @@ public class AssinadorHttpServer {
 
         server.start();
         System.out.printf("Assinador HTTP iniciado na porta %d%n", port);
+
+        if (inativadeMinutos > 0) {
+            long intervalMs = 30_000L;
+            long limiteMs = inativadeMinutos * 60_000L;
+            watchdog = Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "idle-watchdog");
+                t.setDaemon(true);
+                return t;
+            });
+            watchdog.scheduleAtFixedRate(() -> {
+                if (System.currentTimeMillis() - lastActivity.get() >= limiteMs) {
+                    System.out.printf("Encerrando por inatividade (%d min).%n", inativadeMinutos);
+                    stop();
+                    System.exit(0);
+                }
+            }, intervalMs, intervalMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }
     }
 
     public void stop() {
+        if (watchdog != null) {
+            watchdog.shutdownNow();
+        }
         if (server != null) {
             server.stop(1);
             System.out.println("Assinador HTTP encerrado.");
@@ -59,6 +86,7 @@ public class AssinadorHttpServer {
 
     private void handleCriar(HttpExchange exchange) throws IOException {
         if (!requirePost(exchange)) return;
+        lastActivity.set(System.currentTimeMillis());
 
         String body = readBody(exchange);
         try {
@@ -81,6 +109,7 @@ public class AssinadorHttpServer {
 
     private void handleValidar(HttpExchange exchange) throws IOException {
         if (!requirePost(exchange)) return;
+        lastActivity.set(System.currentTimeMillis());
 
         String body = readBody(exchange);
         try {

@@ -37,12 +37,12 @@ Documento derivado de `especificacao.md`. Lista **macro tarefas** para execuçã
 | R2.1 | Definir stack do CLI (linguagem/runtime) e biblioteca de parsing de argumentos / help integrado | Boas práticas de CLI na spec |
 | R2.2 | Implementar comandos de **criação e validação** de assinatura com validação inicial no CLI | **Parcial (2026-04):** `criar`/`validar` disparam o JAR; checagens extras de arquivos/políticas no CLI ainda mínimas. |
 | R2.3 | Implementar **invocação local**: executar `java -jar assinador.jar` (ou caminho configurado) com parâmetros corretos | **Feito (2026-04):** `RUNNER_ASSINADOR_JAR` ou `assinador.jar` ao lado do binário; `JAVA_HOME` ou `java` no PATH; stdout/stderr e código de saída. Cold start (US-01). |
-| R2.4 | Implementar **invocação via HTTP**: cliente HTTP para o Assinador em modo servidor | Warm start (US-01) |
-| R2.5 | Implementar **política de modo**: preferir servidor quando não orientado; permitir forçar local | |
-| R2.6 | Implementar **detecção de instância** do Assinador já em execução na porta padrão (e reutilização) | |
-| R2.7 | Implementar **início do servidor** na porta padrão quando ausente; **parada** na porta padrão ou indicada | |
-| R2.8 | Implementar **encerramento programado** do Assinador após N minutos sem interação (quando solicitado) | |
-| R2.9 | **Formatar e exibir** saídas legíveis; unificar tratamento de erros com mensagens acionáveis | Fluxos das seções 6.1 e 6.2 |
+| R2.4 | Implementar **invocação via HTTP**: cliente HTTP para o Assinador em modo servidor | **Feito (2026-04):** `internal/assinador/http.go`; POST `/criar-assinatura` e `/validar-assinatura`; GET `/health`; POST `/shutdown`. Warm start (US-01). |
+| R2.5 | Implementar **política de modo**: preferir servidor quando não orientado; permitir forçar local | **Feito (2026-04):** `internal/assinador/mode.go`; flag `--local` força cold start; padrão é HTTP. |
+| R2.6 | Implementar **detecção de instância** do Assinador já em execução na porta padrão (e reutilização) | **Feito (2026-04):** `ensureServer()` faz GET `/health` antes de subir nova instância. |
+| R2.7 | Implementar **início do servidor** na porta padrão quando ausente; **parada** na porta padrão ou indicada | **Feito (2026-04):** `servidor iniciar` e `servidor parar`; `StartServer` desanexa o processo (nova sessão Unix / grupo de processos Windows); `WaitForServer` aguarda até 15s. |
+| R2.8 | Implementar **encerramento programado** do Assinador após N minutos sem interação (quando solicitado) | **Feito (2026-04):** flag `--inatividade-minutos` em `servidor iniciar` (Go) e em `servidor` (Java); watchdog no `AssinadorHttpServer` verifica inatividade a cada 30s. |
+| R2.9 | **Formatar e exibir** saídas legíveis; unificar tratamento de erros com mensagens acionáveis | **Feito (2026-04):** JSON pretty-print em todas as saídas HTTP; mensagens de erro acionáveis (dica `--local` em falha de servidor). |
 
 ---
 

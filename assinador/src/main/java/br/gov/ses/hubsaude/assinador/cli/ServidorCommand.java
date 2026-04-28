@@ -17,11 +17,15 @@ public class ServidorCommand implements Callable<Integer> {
             description = "Porta HTTP (padrão: ${DEFAULT-VALUE}).")
     private int porta;
 
+    @Option(names = {"--inatividade-minutos"}, defaultValue = "0",
+            description = "Encerrar após N minutos sem interação (0 = nunca).")
+    private int inativadeMinutos;
+
     @Override
     public Integer call() {
         var server = new AssinadorHttpServer();
         try {
-            server.start(porta);
+            server.start(porta, inativadeMinutos);
             Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
             System.out.println("Pressione Ctrl+C para encerrar.");
             Thread.currentThread().join();

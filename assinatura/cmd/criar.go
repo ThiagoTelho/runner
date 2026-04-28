@@ -8,12 +8,12 @@ import (
 func criarCmd() *cobra.Command {
 	var bundlePath, provenancePath, materialPath string
 	var modoLocal bool
+	var porta int
 
 	cmd := &cobra.Command{
 		Use:   "criar",
 		Short: "Cria uma assinatura digital simulada",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			_ = modoLocal // quando existir modo HTTP, ausência de --local usará o servidor; hoje só há subprocesso local
 			ctx := cmdContext(cmd.Context())
 			java, err := assinador.FindJava()
 			if err != nil {
@@ -23,14 +23,17 @@ func criarCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return assinador.RunCriarLocal(ctx, java, jar, bundlePath, provenancePath, materialPath, cmd.OutOrStdout(), cmd.ErrOrStderr())
+			return assinador.RunCriar(ctx, java, jar, porta, modoLocal,
+				bundlePath, provenancePath, materialPath,
+				cmd.OutOrStdout(), cmd.ErrOrStderr())
 		},
 	}
 
 	cmd.Flags().StringVarP(&bundlePath, "bundle", "b", "", "Caminho do Bundle FHIR R4 (obrigatório)")
 	cmd.Flags().StringVarP(&provenancePath, "provenance", "p", "", "Caminho do Provenance FHIR R4 (obrigatório)")
 	cmd.Flags().StringVarP(&materialPath, "material", "m", "", "Caminho do material criptográfico (obrigatório)")
-	cmd.Flags().BoolVar(&modoLocal, "local", false, "Forçar invocação local (cold start); no estado atual esta é a única forma de execução")
+	cmd.Flags().BoolVar(&modoLocal, "local", false, "Forçar invocação local (cold start), ignorando modo servidor")
+	cmd.Flags().IntVar(&porta, "porta", assinador.DefaultPort, "Porta do servidor HTTP")
 	_ = cmd.MarkFlagRequired("bundle")
 	_ = cmd.MarkFlagRequired("provenance")
 	_ = cmd.MarkFlagRequired("material")
