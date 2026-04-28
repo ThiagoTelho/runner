@@ -24,7 +24,8 @@ const RequiredMajor = 21
 var versionRe = regexp.MustCompile(`version "([^"]+)"`)
 
 // FindOrProvision retorna um executável java com versão >= RequiredMajor.
-// Ordem de busca: JAVA_HOME → PATH → cache local → download Temurin.
+// Verifica JAVA_HOME → PATH → cache compartilhado → download Temurin.
+// O cache é compartilhado com o CLI assinatura em <UserCacheDir>/runner/jdk/21/.
 func FindOrProvision(ctx context.Context) (string, error) {
 	if jh := os.Getenv("JAVA_HOME"); jh != "" {
 		if p, err := javaExeIn(jh); err == nil {
@@ -60,14 +61,12 @@ func MajorVersion(javaExe string) (int, error) {
 	}
 	parts := strings.Split(string(m[1]), ".")
 	major := parts[0]
-	// Formato legado "1.8.0": major real é o segundo segmento.
 	if major == "1" && len(parts) > 1 {
 		major = parts[1]
 	}
 	return strconv.Atoi(major)
 }
 
-// CacheDir retorna o diretório de cache do JDK provisionado pelo Runner.
 func CacheDir() (string, error) {
 	base, err := os.UserCacheDir()
 	if err != nil {
@@ -92,8 +91,7 @@ func findCached() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	marker := filepath.Join(dir, "java.path")
-	data, err := os.ReadFile(marker)
+	data, err := os.ReadFile(filepath.Join(dir, "java.path"))
 	if err != nil {
 		return "", err
 	}
@@ -103,8 +101,6 @@ func findCached() (string, error) {
 	}
 	return p, nil
 }
-
-// --- download ---
 
 type adoptiumAsset struct {
 	Binary struct {
@@ -121,7 +117,7 @@ func download(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("diretório de cache: %w", err)
 	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return "", fmt.Errorf("criar diretório de cache: %w", err)
+		return "", err
 	}
 
 	dlURL, filename, err := resolveURL(ctx)
@@ -157,8 +153,7 @@ func download(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("localizar java no JDK extraído: %w", err)
 	}
 
-	marker := filepath.Join(dir, "java.path")
-	if err := os.WriteFile(marker, []byte(javaPath), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "java.path"), []byte(javaPath), 0o644); err != nil {
 		return "", err
 	}
 
@@ -166,72 +161,55 @@ func download(ctx context.Context) (string, error) {
 	return javaPath, nil
 }
 
-func resolveURL(ctx context.Context) (dlURL, filename string, err error) {
-	goos := adoptiumOS()
-	goarch := adoptiumArch()
+func resolveURL(ctx context.Context) (string, string, error) {
 	apiURL := fmt.Sprintf(
 		"https://api.adoptium.net/v3/assets/latest/%d/hotspot?architecture=%s&image_type=jdk&os=%s&vendor=eclipse",
-		RequiredMajor, goarch, goos,
+		RequiredMajor, adoptiumArch(), adoptiumOS(),
 	)
-
 	client := &http.Client{Timeout: 15 * time.Second}
-	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
-	if err != nil {
-		return "", "", err
-	}
+	req, _ := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 	req.Header.Set("Accept", "application/json")
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", "", fmt.Errorf("API Adoptium: %w", err)
 	}
 	defer resp.Body.Close()
-
 	var assets []adoptiumAsset
 	if err := json.NewDecoder(resp.Body).Decode(&assets); err != nil {
-		return "", "", fmt.Errorf("decodificar resposta Adoptium: %w", err)
+		return "", "", err
 	}
 	if len(assets) == 0 {
-		return "", "", fmt.Errorf("nenhum asset encontrado (os=%s arch=%s)", goos, goarch)
+		return "", "", fmt.Errorf("nenhum asset encontrado")
 	}
-
 	pkg := assets[0].Binary.Package
 	return pkg.Link, pkg.Name, nil
 }
 
 func downloadFile(ctx context.Context, url, dest string) error {
 	client := &http.Client{Timeout: 10 * time.Minute}
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return err
-	}
+	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-
 	f, err := os.Create(dest)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-
 	total := resp.ContentLength
 	var downloaded int64
 	buf := make([]byte, 64*1024)
 	for {
 		n, readErr := resp.Body.Read(buf)
 		if n > 0 {
-			if _, werr := f.Write(buf[:n]); werr != nil {
-				return werr
-			}
+			f.Write(buf[:n])
 			downloaded += int64(n)
 			if total > 0 {
-				fmt.Fprintf(os.Stderr, "\r  %d%% (%d / %d MB)",
-					downloaded*100/total, downloaded>>20, total>>20)
+				fmt.Fprintf(os.Stderr, "\r  %d%% (%d / %d MB)", downloaded*100/total, downloaded>>20, total>>20)
 			} else {
-				fmt.Fprintf(os.Stderr, "\r  %d MB baixados", downloaded>>20)
+				fmt.Fprintf(os.Stderr, "\r  %d MB", downloaded>>20)
 			}
 		}
 		if readErr == io.EOF {
@@ -245,21 +223,14 @@ func downloadFile(ctx context.Context, url, dest string) error {
 	return nil
 }
 
-// --- extração ---
-
 func extractTarGz(src, dest string) error {
-	f, err := os.Open(src)
-	if err != nil {
-		return err
-	}
+	f, _ := os.Open(src)
 	defer f.Close()
-
 	gz, err := gzip.NewReader(f)
 	if err != nil {
 		return err
 	}
 	defer gz.Close()
-
 	tr := tar.NewReader(gz)
 	cleanDest := filepath.Clean(dest) + string(os.PathSeparator)
 	for {
@@ -276,9 +247,9 @@ func extractTarGz(src, dest string) error {
 		}
 		switch hdr.Typeflag {
 		case tar.TypeDir:
-			_ = os.MkdirAll(target, 0o755)
+			os.MkdirAll(target, 0o755)
 		case tar.TypeReg:
-			_ = os.MkdirAll(filepath.Dir(target), 0o755)
+			os.MkdirAll(filepath.Dir(target), 0o755)
 			out, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(hdr.Mode))
 			if err != nil {
 				return err
@@ -289,8 +260,8 @@ func extractTarGz(src, dest string) error {
 				return err
 			}
 		case tar.TypeSymlink:
-			_ = os.MkdirAll(filepath.Dir(target), 0o755)
-			_ = os.Symlink(hdr.Linkname, target)
+			os.MkdirAll(filepath.Dir(target), 0o755)
+			os.Symlink(hdr.Linkname, target)
 		}
 	}
 	return nil
@@ -302,7 +273,6 @@ func extractZip(src, dest string) error {
 		return err
 	}
 	defer r.Close()
-
 	cleanDest := filepath.Clean(dest) + string(os.PathSeparator)
 	for _, f := range r.File {
 		target := filepath.Join(dest, filepath.FromSlash(f.Name))
@@ -310,40 +280,31 @@ func extractZip(src, dest string) error {
 			continue
 		}
 		if f.FileInfo().IsDir() {
-			_ = os.MkdirAll(target, 0o755)
+			os.MkdirAll(target, 0o755)
 			continue
 		}
-		_ = os.MkdirAll(filepath.Dir(target), 0o755)
-		rc, err := f.Open()
-		if err != nil {
-			return err
-		}
+		os.MkdirAll(filepath.Dir(target), 0o755)
+		rc, _ := f.Open()
 		out, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, f.Mode())
 		if err != nil {
 			rc.Close()
 			return err
 		}
-		_, err = io.Copy(out, rc)
+		io.Copy(out, rc)
 		out.Close()
 		rc.Close()
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
 
 func findJavaBinary(dir string) (string, error) {
 	var found string
-	_ = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if err != nil || found != "" {
+	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || found != "" || info.IsDir() {
 			return nil
 		}
-		if info.IsDir() {
-			return nil
-		}
-		name := info.Name()
-		if (name == "java" || name == "java.exe") && filepath.Base(filepath.Dir(path)) == "bin" {
+		if (info.Name() == "java" || info.Name() == "java.exe") &&
+			filepath.Base(filepath.Dir(path)) == "bin" {
 			found = path
 			return filepath.SkipAll
 		}

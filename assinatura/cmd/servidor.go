@@ -22,7 +22,7 @@ func servidorCmd() *cobra.Command {
 		Use:   "iniciar",
 		Short: "Inicia o assinador.jar em modo servidor (background)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			java, err := assinador.FindJava()
+			java, err := assinador.FindOrProvisionJava(cmd.Context())
 			if err != nil {
 				return err
 			}

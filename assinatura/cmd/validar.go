@@ -16,7 +16,7 @@ func validarCmd() *cobra.Command {
 		Short: "Valida uma assinatura digital simulada (JWS)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmdContext(cmd.Context())
-			java, err := assinador.FindJava()
+			java, err := assinador.FindOrProvisionJava(ctx)
 			if err != nil {
 				return err
 			}

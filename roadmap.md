@@ -50,10 +50,10 @@ Documento derivado de `especificacao.md`. Lista **macro tarefas** para execuçã
 
 | ID | Macro tarefa | Observações |
 |----|----------------|-------------|
-| R3.1 | Especificar **versão mínima/recomendada** do JDK e estratégia de detecção no sistema | |
-| R3.2 | Implementar **download e cache** do JDK compatível quando ausente | Windows, Linux, macOS |
-| R3.3 | Integrar JDK provisionado às invocações do **Assinador** e do **Simulador** (`java` resolvido de forma consistente) | |
-| R3.4 | Testar fluxos em **três plataformas** (instalação limpa vs. JDK já presente) | |
+| R3.1 | Especificar **versão mínima/recomendada** do JDK e estratégia de detecção no sistema | **Feito (2026-04):** JDK 21 mínimo; ordem: JAVA_HOME → PATH → cache Runner → download. |
+| R3.2 | Implementar **download e cache** do JDK compatível quando ausente | **Feito (2026-04):** `internal/jdk/provision.go`; Adoptium API para URL; tar.gz (Linux/macOS) e zip (Windows); cache em `<UserCacheDir>/runner/jdk/21/`; marker `java.path`. |
+| R3.3 | Integrar JDK provisionado às invocações do **Assinador** e do **Simulador** (`java` resolvido de forma consistente) | **Feito (2026-04):** `assinador.FindOrProvisionJava(ctx)` em `resolve.go`; todos os comandos (`criar`, `validar`, `servidor`) usam a nova função. |
+| R3.4 | Testar fluxos em **três plataformas** (instalação limpa vs. JDK já presente) | **Parcial (2026-04):** testado macOS (JDK presente via JAVA_HOME, via PATH, JAVA_HOME inválido). Linux/Windows pendente de CI. |
 
 ---
 
@@ -61,11 +61,11 @@ Documento derivado de `especificacao.md`. Lista **macro tarefas** para execuçã
 
 | ID | Macro tarefa | Observações |
 |----|----------------|-------------|
-| R4.1 | Implementar **download do `simulador.jar`** a partir de **GitHub Releases** da disciplina (sempre versão mais recente) | Não desenvolver o JAR do simulador |
-| R4.2 | Implementar **cache local**: não baixar se a versão mais recente já existir | |
-| R4.3 | Implementar **início do Simulador** com verificação de **portas disponíveis** antes de subir | |
-| R4.4 | Implementar **parada** e **comando de status** (em execução ou não) | |
-| R4.5 | Alinhar mensagens, help e erros ao mesmo padrão de qualidade do CLI `assinatura` | |
+| R4.1 | Implementar **download do `simulador.jar`** a partir de **GitHub Releases** da disciplina (sempre versão mais recente) | **Feito (2026-04):** `internal/process/manager.go`; busca release via GitHub API; asset `simulador*.jar`; configura com `RUNNER_SIMULADOR_REPO=owner/repo` ou `RUNNER_SIMULADOR_JAR` para JAR local. |
+| R4.2 | Implementar **cache local**: não baixar se a versão mais recente já existir | **Feito (2026-04):** `version.txt` em `<UserCacheDir>/runner/simulador/`; compara com tag da release antes de baixar. |
+| R4.3 | Implementar **início do Simulador** com verificação de **portas disponíveis** antes de subir | **Feito (2026-04):** `CheckPort` testa tcp4 e tcp6; `Start` desanexa processo (nova sessão Unix / grupo Windows); salva PID+porta em `simulador.pid`. |
+| R4.4 | Implementar **parada** e **comando de status** (em execução ou não) | **Feito (2026-04):** `Stop` envia SIGTERM (Unix) / Kill (Windows); `Status` verifica processo vivo via PID file. |
+| R4.5 | Alinhar mensagens, help e erros ao mesmo padrão de qualidade do CLI `assinatura` | **Feito (2026-04):** erros acionáveis (repo não configurado, porta em uso, processo não encontrado); mensagens consistentes em todos os comandos. |
 
 ---
 

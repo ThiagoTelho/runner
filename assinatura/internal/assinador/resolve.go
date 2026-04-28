@@ -1,11 +1,14 @@
 package assinador
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"github.com/thiagotelho/runner/assinatura/internal/jdk"
 )
 
 // EnvVarAssinadorJar é a variável de ambiente que, se definida, aponta para o arquivo assinador.jar.
@@ -52,6 +55,12 @@ func FindAssinadorJar() (string, error) {
 		return "", err
 	}
 	return abs, nil
+}
+
+// FindOrProvisionJava retorna um executável java com versão >= 21.
+// Se não encontrar no sistema, baixa e faz cache do Temurin JDK 21 automaticamente.
+func FindOrProvisionJava(ctx context.Context) (string, error) {
+	return jdk.FindOrProvision(ctx)
 }
 
 // FindJava resolve o executável `java`: JAVA_HOME/bin/java quando existir; senão `java` no PATH.

@@ -15,7 +15,7 @@ func criarCmd() *cobra.Command {
 		Short: "Cria uma assinatura digital simulada",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmdContext(cmd.Context())
-			java, err := assinador.FindJava()
+			java, err := assinador.FindOrProvisionJava(ctx)
 			if err != nil {
 				return err
 			}

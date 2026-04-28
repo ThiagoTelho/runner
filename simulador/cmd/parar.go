@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/thiagotelho/runner/simulador/internal/process"
 )
 
 func pararCmd() *cobra.Command {
@@ -11,8 +12,10 @@ func pararCmd() *cobra.Command {
 		Use:   "parar",
 		Short: "Para o Simulador HubSaúde",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: stop running simulador.jar process
-			fmt.Println("parar: ainda não implementado")
+			if err := process.Stop(); err != nil {
+				return err
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), "Simulador encerrado.")
 			return nil
 		},
 	}
