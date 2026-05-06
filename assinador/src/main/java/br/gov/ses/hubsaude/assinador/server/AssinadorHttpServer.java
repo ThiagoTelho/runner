@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
  *   <li>GET  /health</li>
  * </ul>
  */
+
 public class AssinadorHttpServer {
 
     public static final int DEFAULT_PORT = 8190;
