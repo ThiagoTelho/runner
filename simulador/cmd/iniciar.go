@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/thiagotelho/runner/simulador/internal/jdk"
+	"github.com/thiagotelho/runner/jdk"
 	"github.com/thiagotelho/runner/simulador/internal/process"
 )
 

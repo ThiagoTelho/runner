@@ -1,3 +1,8 @@
+// Package jdk provisiona um JDK Temurin compatível para o Runner.
+//
+// A ordem de busca é: JAVA_HOME → PATH → cache local → download. O cache fica
+// em <UserCacheDir>/runner/jdk/<major>/ e é compartilhado entre os CLIs do
+// projeto (simulador, assinatura).
 package jdk
 
 import (
@@ -48,7 +53,7 @@ func FindOrProvision(ctx context.Context) (string, error) {
 	return download(ctx)
 }
 
-// MajorVersion executa java -version e retorna o número major (ex: 21).
+// MajorVersion executa java -version e retorna o número major (ex.: 21).
 func MajorVersion(javaExe string) (int, error) {
 	out, err := exec.Command(javaExe, "-version").CombinedOutput()
 	if err != nil {

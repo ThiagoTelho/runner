@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/thiagotelho/runner/assinatura/internal/jdk"
+	"github.com/thiagotelho/runner/jdk"
 )
 
 // EnvVarAssinadorJar é a variável de ambiente que, se definida, aponta para o arquivo assinador.jar.
