@@ -54,7 +54,9 @@ func setup() error {
 	if err != nil {
 		self = os.Args[0]
 	}
-	self, _ = filepath.EvalSymlinks(self)
+	if resolved, err := filepath.EvalSymlinks(self); err == nil {
+		self = resolved
+	}
 	repoRoot := filepath.Dir(filepath.Dir(self))
 
 	// Binários Go.
